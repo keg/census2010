@@ -1,0 +1,26 @@
+{% load humanize data_extras %}
+{% regroup values by field as values_list %}
+<table class="deluxe" cellpadding="0" cellspacing="0">
+    <tbody>
+        <tr id="header-sub">
+            <th scope="col" abbr="Field" style="width:400px;">Field</th>
+{% if survey_type == '1' %}            <th scope="col" abbr="2009">2009</th>
+            <th scope="col" abbr="2008">2008</th>
+            <th scope="col" abbr="2007">2007</th>
+            <th scope="col" abbr="2006">2006</th>{% endif %}
+{% if survey_type == '5' %}            <th scope="col" colspan="4" abbr="2005-2009">2005-2009</th>{% endif %}
+        </tr>
+{% for values in values_list %}
+        <tr class="{% cycle 'trRow' 'trAlt' %}" id="{{ values.grouper.id }}">
+            <th scope="row" abbr="{{ values.grouper.name }}" {% ifchanged values.grouper.field_level %}{% ifequal values.grouper.field_level 2 %}style="font-weight:bold;"{% endifequal %}{% endifchanged %}>{{ values.grouper.get_top_field|safe }}</th>
+    {% if survey_type == '5' %}
+    {% for val in values.list %}
+            {% if values.list.0.value == 0 %}<td></td>{% else %}<td>{% if forloop.counter == 2 or forloop.counter == 4 %}<span style="color:#999;">&plusmn;</span>{% endif %}{% get_value val %}</td>{% endif %}{% endfor %}
+    {% else %}
+    {% for val in values.list %}
+            <td class="{% for item in val.statsignificance_set.all|dictsort:"year" %}year{{ item.year }}{% endfor %}"><!-- {{ val.year }} -->{% get_value val %}</td>{% endfor %}
+    {% endif %}
+        </tr>
+{% endfor %}
+    </tbody>
+</table>

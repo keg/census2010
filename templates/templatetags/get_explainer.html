@@ -1,0 +1,9 @@
+{% load humanize %}
+<b>Note:</b> This data is from the U.S. Census Bureau's {% if survey_type != 'all' %}{{ survey_type|apnumber }}-year {{ survey_type_year }}{% endif %} American Community Survey. 
+{% if survey_type == '1' %}
+The one-year survey is a snapshot of cities and counties with more than 65,000 residents.<br><br>These are not the results of the ten-year census.
+{% endif %}
+{% if survey_type == '5' %}
+The five-year survey is a snapshot of U.S. cities and counties.<br><br>These are not the results of the ten-year census.
+{% endif %}
+ <a href="/census/about/">More about this data</a>.

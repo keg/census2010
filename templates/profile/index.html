@@ -1,0 +1,39 @@
+{% extends "profile/base.html" %}
+{% block title %}Colorado Census Profiles{% endblock%}
+{% block description %}{% endblock%}
+
+{% block style %}{% endblock style %}
+
+{% block main %}
+{% load data_extras %}
+<h1>Census Profiles</h1>
+<p>Profiles are available for cities and counties with more than 65,000 residents.</p>
+
+<div style="float:left; width:150px; margin-right:10px;">
+    <h2>County Profiles</h2>
+    <ul>
+    {% for item in county_list|dictsort:"name" %}
+        <li><a href="by-county/{{ item.slug }}/">{{ item }}</a></li>{% endfor %}</ul>
+</div>
+
+<div style="float:left; width:150px; margin-right:10px;">
+    <h2>City Profiles</h2>
+    <ul>
+    {% for item in city_list|dictsort:"name" %}
+        <li><a href="by-city/{{ item.slug }}/">{{ item }}</a></li>{% endfor %}</ul>
+</div>
+
+{% if town_list %}
+<div style="float:left; width:150px; margin-right:10px;">
+    <h2>Town Profiles</h2>
+    <ul>
+    {% for item in town_list|dictsort:"name" %}
+        <li><a href="by-town/{{ item.slug }}/">{{ item }}</a></li>{% endfor %}</ul>
+</div>
+{% endif %}
+<div id="legend" style="width:250px; margin-top:15px; float:left;">
+    <div>
+        <p>{% get_explainer 'p' survey_type '2009' %}</p>
+    </div>
+</div>
+{% endblock main %}

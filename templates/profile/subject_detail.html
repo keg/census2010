@@ -1,0 +1,66 @@
+{% extends "profile/base.html" %}
+{% block title %}{{ obj }} {{ category }} Profile{% endblock%}
+{% block description %}{% endblock%}
+
+{% block style %}
+#main { float:left }
+div.tablekey { float:left; margin-top:60px; }
+{% endblock style %}
+
+{% block breadcrumbs %}{{ block.super }} &rsaquo; <a href="{{ obj.get_absolute_url }}">{{ obj }}</a> {% if root_field %}&rsaquo; <a href="../">{{ category }}</a>{% endif %}{% endblock breadcrumbs %}
+
+{% block main %}
+{% load humanize data_extras cache %}
+{% cache 99999999 profile obj survey_type category %}
+<h1>{{ obj }} {{ category }} Profile</h1>
+{% if root_field %}<h2>{{ root_field }}</h2>{% endif %}
+
+<ul style="float:left; margin-right:10px; width:250px;">
+{% for field in root_fields %}
+<li>&rsaquo; <a href="#{{ field|slugify }}">{{ field }}</a></li>
+{% endfor %}</ul>
+
+<div id="legend" style="margin:10px 0; width:266px;">
+    <div>
+        <p>{% get_explainer 'p' survey_type '2009' %}</p>
+    </div>
+</div>
+
+{% next_prev_cat next_cat 'Profile' obj %}
+
+<div style="clear:both;"></div>
+{% for field in root_fields %}
+<a name="{{ field|slugify }}"></a>
+<h2>{{ field }}</h2>
+{% values_for_root obj field survey_type %}
+{% endfor %}
+
+{% next_prev_cat next_cat 'Profile' obj %}
+{% endcache %}
+{% endblock main %}
+
+{% block sidebar %}
+{% if survey_type == 1 %}
+<div class="tablekey">
+    <div>
+        <h3>Statistical Significance:</h3>
+        <p>Table cells are colored with a bright background color when that value is a statistically significant change over a previous year.</p>
+        <div style="padding:15px;">
+            <p><div class="year2006">&nbsp;</div> Between that year and 2006</p>
+            <p><div class="year2007">&nbsp;</div> ...that year and 2007</p>
+            <p><div class="year2008">&nbsp;</div> ...that year and 2008</p>
+            <p><div class="year2006year2007">&nbsp;</div> ...that year and 2006 and 2007</p>
+            <p><div class="year2006year2007year2008">&nbsp;</div> ...that year and 2006 and 2007 and 2008</p>
+        </div>
+    </div>
+</div>
+{% else %}
+<!--
+<div class="tablekey">
+    <div>
+        <h3>Colorado {{ location_type }}</h3>
+    </div>
+</div>
+-->
+{% endif %}
+{% endblock sidebar %}

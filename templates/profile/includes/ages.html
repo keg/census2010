@@ -1,0 +1,240 @@
+{% load humanize %}
+{% load custom_filters %}
+<div id="ages" class="tab_content">
+ <div class="featured">
+          <script type="text/javascript">
+              $(document).ready(function drawChart() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Year');
+                data.addColumn('number', 'Year 2000');
+                data.addColumn('number', 'Year 2010');
+                data.addRows(4);
+                data.setValue(0, 0, 'Asian');
+                data.setValue(0, 1, {{ ages.total_population_Asian_2000 }});
+                data.setValue(0, 2, {{ ages.total_population_asian_2010 }});
+                data.setValue(1, 0, 'Black');
+                data.setValue(1, 1, {{ ages.total_population_black_2000 }});
+                data.setValue(1, 2, {{ ages.total_population_black_2010 }});
+                data.setValue(2, 0, 'Latino');
+                data.setValue(2, 1, {{ ages.total_population_latino_2000 }});
+                data.setValue(2, 2, {{ ages.total_population_Latino_2010 }});
+                data.setValue(3, 0, 'White');
+                data.setValue(3, 1, {{ ages.total_population_white_2000 }});
+                data.setValue(3, 2, {{ ages.total_population_white_2010 }});
+                var chart = new google.visualization.ColumnChart(document.getElementById('ages_featured_1'));
+                
+                chart.draw(data, {width: 300, height: 200, colors: ['#2F4F4F', '#668B8B'], legend: 'in',
+                                 });
+              });
+            </script>
+            <h4>Total Population</h4>
+            <div id="ages_featured_1"></div>
+    </div>
+    <div class="featured">
+            <script type="text/javascript">
+              $(document).ready(function drawChart() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Year');
+                data.addColumn('number', 'Year 2000');
+                data.addColumn('number', 'Year 2010');
+                data.addRows(5);
+                data.setValue(0, 0, 'All Races:');
+                data.setValue(0, 1, {{ median_age.med_age_all_races_2000 }});
+                data.setValue(0, 2, {{ median_age.median_age_all_races_2010  }});
+                data.setValue(1, 0, 'Asian');
+                data.setValue(1, 1, {{ median_age.median_age_asian_2000 }});
+                data.setValue(1, 2, {{ median_age.median_age_asian_2010  }});
+                data.setValue(2, 0, 'Black');
+                data.setValue(2, 1, {{ median_age.median_age_black_2000 }});
+                data.setValue(2, 2, {{ median_age.median_age_black_2010  }});
+                data.setValue(3, 0, 'Latino');
+                data.setValue(3, 1, {{ median_age.median_age_latino_2000 }});
+                data.setValue(3, 2, {{ median_age.median_age_latino_2010  }});
+                data.setValue(4, 0, 'White');
+                data.setValue(4, 1, {{ median_age.median_age_white_2000 }});
+                data.setValue(4, 2, {{ median_age.median_age_white_2010  }});
+                var chart = new google.visualization.ColumnChart(document.getElementById('ages_featured_2'));
+                
+                chart.draw(data, {width: 300, height: 200, colors: ['#2F4F4F', '#668B8B'], legend: 'in',
+                                 });
+              });
+            </script>
+            <h4>Median Age</h4>
+            <div id="ages_featured_2"></div>
+    </div>
+    <div class="featured">
+            <script type="text/javascript">
+              $(document).ready(function drawChart() {
+                var data = new google.visualization.DataTable();
+                data.addColumn('string', 'Year');
+                data.addColumn('number', 'Year 2000');
+                data.addColumn('number', 'Year 2010');
+                data.addRows(4);
+                data.setValue(0, 0, '90 and Over');
+                data.setValue(0, 1, {{ ninety_to_hundred.total_90_and_over_2000 }});
+                data.setValue(0, 2, {{ ninety_to_hundred.total_90_and_over_2010 }});
+                data.setValue(1, 0, '100 and Over');
+                data.setValue(1, 1, {{ ninety_to_hundred.total_100_and_over_2000 }});
+                data.setValue(1, 2, {{ ninety_to_hundred.total_100_and_over_2010 }});
+                data.setValue(2, 0, '110 and Over');
+                data.setValue(2, 1, {{ ninety_to_hundred.total_110_and_over_2000 }});
+                data.setValue(2, 2, {{ ninety_to_hundred.total_110_and_over_2010 }});
+                var chart = new google.visualization.ColumnChart(document.getElementById('ages_featured_3'));
+                
+                chart.draw(data, {width: 300, height: 200, colors: ['#2F4F4F', '#668B8B'], legend: 'in',
+                                 });
+              });
+            </script>
+            <h4>Ages 90 - 100</h4>
+            <div id="ages_featured_3"></div>
+    </div>
+    <div class="tabbed">
+        <h4>Ages by race and age</h4>
+            <table id="census-table" class="tablesorter">
+                <thead> 
+                    <tr>
+                        <th>Age</th>
+                        <th>Total</th>
+                        <th>%</th>
+                        <th>Asian</th>
+                        <th>%</th>
+                        <th>Black</th>
+                        <th>%</th>
+                        <th>Latino</th>
+                        <th>%</th>
+                        <th>White</th>
+                        <th>%</th>
+                    </tr>
+                </thead> 
+                <tbody> 
+                    <tr>
+                        <td class="item-name">
+                            Under 5
+                        </td>
+                        <td class="number">
+                            {{ ages.total_population_under_5_years_all_races_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            {{ ages.percent_under_5_all_races_2010|percentage }}
+                        </td>
+                        <td class="number">
+
+                            {{ ages.total_asian_under_5_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            {{ ages.percent_asian_under_5_2010|percentage }}
+                        </td>
+                        <td class="number">
+                            {{ ages.total_black_under_5_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            {{ ages.percent_black_under_5_2010|percentage }}
+                        </td>
+                        <td class="number">
+                            {{ ages.total_latino_under_5_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            TODO: reload data to fix naming{{ ages.percent_latino_under_5_2010|percentage }} X
+                        </td>
+                        <td class="number">
+                              {{ ages.total_white_under_5_2010|intcomma }}
+                          </td>
+                          <td class="percentage">
+                              {{ ages.percent_white_under_5_2010|percentage }}
+                          </td>
+                    </tr>
+                    <tr>
+                        <td class="item-name">
+                            Under 18
+                        </td>
+                        <td class="number">
+                            {{ ages.total_under_18_all_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            {{ ages.percent_under_18_2010_all_races|percentage }}
+                        </td>
+                        <td class="number">
+                            {{ ages.total_asian_under_18_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            {{ ages.percent_asian_under_18_2010|percentage }}
+                        </td>
+                        <td class="number">
+                            {{ ages.total_black_under_18_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            {{ ages.percent_black_under_18_2010|percentage }}
+                        </td>
+                        <td class="number">
+                            {{ ages.total_latino_under_18_2010|intcomma }}
+                        </td>
+                        <td class="percentage">
+                            TODO: reload data to fix naming{{ ages.percent_latino_under_18_2010|percentage }} X
+                        </td>
+                        <td class="number">
+                              {{ ages.total_white_under_18_2010|intcomma }}
+                          </td>
+                          <td class="percentage">
+                              {{ ages.percent_white_under_18_2010|percentage }}
+                          </td>
+
+                    </tr>
+                    <tr>
+
+
+                              <td class="item-name">
+                                  65 Plus
+                              </td>
+                              <td class="number">
+                                  {{ ages.total_65_and_over_2010_all_races|intcomma }}
+                              </td>
+                              <td class="percentage">
+                                  {{ ages.percent_65_and_over_all_races_2010|percentage }}
+                              </td>
+                              <td class="number">
+
+                                  {{ ages.total_asian_65_and_over_2010|intcomma }}
+                              </td>
+                              <td class="percentage">
+                                  {{ ages.percent_asian_65_plus_2010|percentage }}
+                              </td>
+                              <td class="number">
+                                  {{ ages.total_black_65_and_over_2010|intcomma }}
+                              </td>
+                              <td class="percentage">
+                                  {{ ages.percent_black_65_plus_2010|percentage }}
+                              </td>
+                              <td class="number">
+                                  {{ ages.total_latino_65_and_over_2010|intcomma }}
+                              </td>
+                              <td class="percentage">
+                                  TODO: reload data to fix naming{{ ages.percent_latino_65_plus_2010|percentage }} X
+                              </td>
+                              <td class="number">
+                                    {{ ages.total_white_65_and_over_2010|intcomma }}
+                                </td>
+                                <td class="percentage">
+                                    TODO: RELOAD TO FIX THIS{{ ages.percent_white_under_18_2010|percentage }} X
+                                </td>
+
+                          </tr>
+                </tbody>
+                <tfoot>
+                <!--
+                <tr>
+                    <th>Total</th>
+
+                    <th>1,567,582</th>
+                    <th>100%</th>
+                    <th>785,324</th>
+                    <th>100%</th>
+                    <th>782,258</th>
+                    <th>100%</th>
+
+                </tr>
+                -->
+                </tfoot>
+            </table>
+        </div>
+    </div>
+        </div><!-- /ages -->

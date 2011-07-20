@@ -1,0 +1,22 @@
+{% load humanize data_extras %}
+<!-- Note: This is used with the values_for_root_via_location templatetag -->
+<table class="deluxe" cellpadding="0" cellspacing="0">
+    <tbody>
+        <tr id="header-sub">
+            <th scope="col" abbr="Field" style="">Field</th>
+{% for location in values %}
+            <th scope="col" abbr="{{ location.0.location.name }}">{{ location.0.location.name }}</th>{% endfor %}
+        </tr>
+{% for item in fields %}
+        <tr class="{% cycle 'trRow' 'trAlt' %}">
+            <th scope="row" abbr="{{ values.grouper.name }}" {% ifchanged values.grouper.field_level %}{% ifequal values.grouper.field_level 2 %}style="font-weight:bold;"{% endifequal %}{% endifchanged %}><a href="{% get_compare_url item "county" %}">{{ item.get_top_field|safe }}</a></th>
+    {% for val in values %}
+            <td class="{% for item in val.statsignificance_set.all %}year{{ item.year }}{% endfor %}">{% values_for_compare_row forloop.parentloop.counter0 val %}</td>
+    {% endfor %}    </tr>
+{% endfor %}
+    </tbody>
+</table>
+
+{% comment %}
+{% for item in val.statsignificance_set.all %}&lt;{% endfor %}
+{% endcomment %}

@@ -1,0 +1,31 @@
+{% load humanize data_extras %}
+<div id="{{ field|slugify }}_nameSpan" style="float:left;width:300px;"></div> 
+<div id="{{ field|slugify }}_div" style="float:left;width:600px;overflow:auto;"> 
+<table class="deluxe" id="{{ field|slugify }}_table" cellpadding="0" cellspacing="0">
+    <tbody>
+        <tr id="header-sub">
+            <th scope="col" abbr="Field" style="width:332px;">Field</th>
+{% for location in locations %}
+            <th scope="col" abbr="{{ location.name }}"><a href="../../../../profile/by-{{ location.classification|lower }}/{{ location.slug }}/by-subject/{{ field.get_category_display|lower }}/#{{ field.slug }}">{{ location.name }}</a></th>{% endfor %}
+        </tr>
+{% for item in fields %}
+        <tr class="{% cycle 'trRow' 'trAlt' %}">
+            <th scope="row" abbr=""><a href="/census/survey/{{ survey_type }}-year/colorado/map/by-{{ location_type }}/?id={{ item.pk }}&amp;year=2009" title="Map this data">{{ item.get_top_field|safe }}</a></th>
+    {% values_for_row location_type item survey_type %}
+   </tr>
+{% endfor %}
+    </tbody>
+</table>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    stripFirstColumn('{{ field|slugify }}');
+    fixHeights('{{ field|slugify }}');
+    $("#{{ field|slugify }}_div").attr('scrollRight', $("#{{ field|slugify }}_div").attr('scrollWidth'));    // scroll to the last round
+});
+</script>
+
+<div style="clear:both;">&nbsp;</div>
+{% comment %}
+{% for item in val.statsignificance_set.all %}&lt;{% endfor %}
+{% endcomment %}

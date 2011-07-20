@@ -1,0 +1,6 @@
+{% load humanize data_extras %}
+
+<h3>{{ field }}</h3>
+<ol>
+{% for item in values %}    <li>{{ item.location }}, {% get_value item %}</li>{% endfor %}
+</ol>

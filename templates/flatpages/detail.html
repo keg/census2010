@@ -1,0 +1,30 @@
+{% extends "profile/base.html" %}
+{% block title %}{{ obj }} Census Survey Profile{% endblock%}
+{% block description %}{% endblock%}
+
+{% block style %}
+{% endblock style %}
+
+{% block breadcrumbs %}{{ block.super }}{% endblock breadcrumbs %}
+{% block main %}
+{% load data_extras %}
+<h1>{{ obj }} Census Survey Profile</h1>
+
+<h2>By Subject</h2>
+<h3><a href="by-subject/demographic/">{{ obj }} Demographic Profile</a></h3>
+<p>Age, sex, race, ancestry, migration patterns, birthplace.</p>
+<h3><a href="by-subject/education/">Education Profile</a></h3>
+<p>School enrollment, educational attainment.</p>
+<h3><a href="by-subject/economic/">Economic Profile</a></h3>
+<p>Poverty, commuting, income, industry.</p>
+<h3><a href="by-subject/housing/">Housing Profile</a></h3>
+<p>Housing characteristics, rent vs. mortgage.</p>
+<h3><a href="by-subject/social/">Social Profile</a></h3>
+<p>Statistics concerning children, grandparents, marital status.</p>
+
+{% comment %}
+{% for field in fields %}
+<li>{{ field.name_long }}</li>
+{% endfor %}
+{% endcomment %}
+{% endblock main %}

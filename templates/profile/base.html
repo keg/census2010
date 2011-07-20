@@ -1,0 +1,113 @@
+{% extends "map/base.html" %}
+{% load humanize %}
+{% load custom_filters %}
+{% block title %}Census 2010{% endblock%}
+{% block description %}{% endblock%}
+{% block head %}
+    <script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery-1.6.min.js"></script> 
+    <script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery.tablesorter.min.js"></script>
+    <script type="text/javascript" src="{{ MEDIA_URL }}/js/raphael.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/census.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/details.css">
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+        google.load("visualization", "1", {packages:["corechart"]});
+        //google.setOnLoadCallback(drawChart);
+    $(document).ready(function() {
+        //When page loads...
+        $(".tab_content").hide(); //Hide all content
+        $("ul.tabs li:first").addClass("active").show(); //Activate first tab
+        $(".tab_content:first").show(); //Show first tab content
+
+        //On Click Event
+        $("ul.tabs li").click(function() {
+            $("ul.tabs li").removeClass("active"); //Remove any "active" class
+            $(this).addClass("active"); //Add "active" class to selected tab
+            $(".tab_content").hide(); //Hide all tab content
+            var activeTab = $(this).find("a").attr("href"); //Find the href attribute value to identify the active tab + content
+            $(activeTab).fadeIn(); //Fade in the active ID content
+            return false;
+        });
+    });
+    </script>
+{% endblock head %}
+{% block style %}
+#main { margin:0; }
+.mainwide { width:100%!important; }
+#globalnav { height:52px!important; }
+h4 { margin:0; padding:0; }
+dt { font-weight:bold; }
+
+#key { margin:10px 0 0 5px; }
+.keywrapper
+{
+    float:left;
+    margin-right:5px;
+    width:90px;
+}
+.keybox
+{
+    border:1px solid #999;
+    width:20px;
+    height:20px;
+    float:left;
+    margin-right:2px;
+    background-color:#fff;
+}
+.keytext
+{
+    font-size:10px;
+}
+{% endblock style %}
+
+{% block appnav %}{% endblock appnav %}
+
+{% block main %}
+    <!-- TODO: Fix the hack below to get the container to move left -->
+    <div id="census-wrapper" style="margin-left: -52px;">
+        <div id="census-header">
+
+            <h1 id="census-logo">
+                Colorado Census 2010
+            </h1>
+            <ul id="global-nav">
+                <li><span class="black">Complete List of: </span><a href="#">Cities</a>/<a href="#">Counties</a>&nbsp;|&nbsp;</li>
+                <li><a href="#">About this Project</a>&nbsp;|&nbsp;</li>
+
+                <li><a href="#">Source Data</a>&nbsp;|&nbsp;</li>
+                <li><a href="#">Help</a></li>
+            </ul>
+        </div><!-- #census-header -->
+        
+        
+        <div id="top-level">
+        <h2> {{ location.name }} </h2>
+        <div class="featuredBig">
+        <ul class="biglist">
+            <li><strong>Total Population 2010</strong>: {{ ages.total_population_2010|intcomma }}</li>
+            <li><strong>Total Population 2000</strong>: {{ ages.total_population_2000|intcomma }}</li>
+            <li><strong>Total Change</strong>: {{ population_change|intcomma }}</li>
+        </ul>
+        <!--<div style="width:200px;height:200px;border: 1px solid #ccc;float:left;padding:20px;">
+        </div>-->
+        {% comment %}
+        <div class="tabbed">
+        <ul class="tabs">
+    <li><a href="#ages">Ages</a></li>
+    <li><a href="#family">Family</a></li>
+    <li><a href="#household">Household</a></li>
+
+</ul>
+{% endcomment %}
+<div class="tab_container">
+{% include "profile/includes/ages.html" %}
+{% comment %}
+{% include "profile/includes/family.html" %}
+{% include "profile/includes/household.html" %}
+{% endcomment %}                
+
+</div><!-- #container --></div>
+</div><!-- /tabbed -->
+
+{% endblock main %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}{{ flatpage.title }}{% endblock%}
+{% block description %}{% endblock%}
+{% block section %}flatpage{% endblock %}
+
+{% block style %}{% endblock style %}
+
+{% block breadcrumbs %}{{ block.super }}{% endblock breadcrumbs %}
+{% block main %}
+{% load data_extras %}
+<div style="height:600px;">
+<h1>{{ flatpage.title }}</h1>
+{{ flatpage.content }}
+
+</div>
+{% endblock main %}

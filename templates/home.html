@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock%}
+{% block description %}{% endblock%}
+{% block section %}home{% endblock%}
+
+{% block style %}
+{% endblock style %}
+{% block banner %}
+{% endblock banner %}
+{% block main %}
+{% load data_extras %}
+<h1>Colorado Census Data</h1>
+<div id="legend">
+    <div>
+        <p>{% get_explainer 'p' 'all' 'all' %}</p>
+    </div>
+</div>
+
+<p>Choose the census data you want to view.</p>
+
+<h2><a href="5-year/colorado/">5-year Census Survey</a></h2>
+<p>The 5-year survey gives a statistical snapshot of all Colorado's cities, towns and counties. The data represents the years 2005-2009.</p>
+<ul class="giant">
+    <li><a href="5-year/colorado/compare/">Compare counties, cities and towns</a></li>
+    <li><a href="5-year/colorado/profile/">Drill-down into a particular county, city or town</a></li>
+
+<!--    
+    <li><a href="5-year/colorado/map/">View an interactive map of census results</a>
+        <ul>
+            <li><a href="5-year/colorado/map/by-county/">Map: Compare Counties</a></li>
+            <li><a href="5-year/colorado/map/by-city/">Map: Compare Cities</a></li>
+        </ul></li>
+-->
+</ul>
+
+<h2><a href="1-year/colorado/">1-year Census Survey</a></h2>
+<p>The 1-year survey gives a statistical snapshot of Colorado's largest cities and counties, and allows you to see how these places have changed over time.</p>
+<ul class="giant">
+    <li><a href="1-year/colorado/compare/">Compare counties or cities</a></li>
+    <li><a href="1-year/colorado/profile/">Drill-down into a particular county or city</a></li>
+    <li><a href="1-year/colorado/map/">View an interactive map of census results</a>
+        <ul>
+            <li><a href="1-year/colorado/map/by-county/">Map: Compare Counties</a></li>
+            <li><a href="1-year/colorado/map/by-city/">Map: Compare Cities</a></li>
+        </ul></li>
+</ul>
+
+{% endblock main %}

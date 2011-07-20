@@ -1,0 +1,933 @@
+{% extends "census/base.html" %}
+{% block title %}Census 2010{% endblock%}
+{% block description %}{% endblock%}
+{% block head %}
+    <link rel="stylesheet" type="text/css" href="http://extras.denverpost.com/media/app/census/css/census.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="http://extras.denverpost.com/media/app/census/css/blue/style.css" media="all" />
+    
+    <style type="text/css">
+        #panel { width:325px; }
+        #panel, #panel * { font-family: Arial,sans-serif; font-size: 16px; }
+        #stateSelector { width: 100%; }
+        #log * { font-size: 14px; }
+        #testmap { position:absolute; border-left:1px solid #AAA; }
+    </style>
+    
+    <script type="text/javascript">
+        (function() {
+            var match = location.search.match( /\Wv=([\w.]+)/ );
+            window.apiver = match && match[1];
+            if( ! apiver )
+                location.search = '?v=3.3';
+        })();
+    </script>
+    
+    <script type="text/javascript">
+    /*
+        document.write(
+            '<script type="text/javascript" src="apiloader-', location.host.replace(':','-'), '.js">',
+            '<\/script>'
+        );
+        */
+    </script>
+
+{% endblock head %}
+{% block style %}
+#main { margin-left:0; }
+.mainwide { width:100%!important; }
+#globalnav { height:52px!important; }
+h4 { margin:0; padding:0; }
+dt { font-weight:bold; }
+
+#key { margin:10px 0 0 5px; }
+.keywrapper
+{
+    float:left;
+    margin-right:5px;
+    width:90px;
+}
+.keybox
+{
+    border:1px solid #999;
+    width:20px;
+    height:20px;
+    float:left;
+    margin-right:2px;
+    background-color:#fff;
+}
+.keytext
+{
+    font-size:10px;
+}
+{% endblock style %}
+{% block appnav %}{% endblock appnav %}
+{% block main %}{% load humanize data_extras %}
+<script type="text/javascript" src="/media/js/colorado-county-2010.js"></script>
+<script type="text/javascript">
+
+
+
+{% comment %}
+{% for value in state.Colorado %}state['colorado']['{{ value.field.name_long|slugify }}'] = '{{ value|intcomma }}';
+{% endfor %}
+var counties = Array({% for loc in counties.items %}'{{ loc|slugify }}'{% if not forloop.last %},{% endif %}{% endfor %});
+var county = Object();
+{% for loc, values in counties.items %}county['{{ loc|slugify }}'] = Object();
+{% for value in values %}
+county['{{ loc|slugify }}']['{{ value.field.name_long|slugify }}'] = '{{ value }}';{% endfor %}{% endfor %}
+
+
+var cities = Array({% for loc in cities.items %}'{{ loc|slugify }}'{% if not forloop.last %},{% endif %}{% endfor %});
+var city = Object();
+{% for loc, values in cities.items %}city['{{ loc|slugify }}'] = Object();
+{% for value in values %}
+city['{{ loc|slugify }}']['{{ value.field.name_long|slugify }}'] = '{{ value }}';{% endfor %}{% endfor %}
+{% endcomment %}
+</script>
+    <div id="census-wrapper">
+        <div id="census-header">
+
+            <h1 id="census-logo">
+                Colorado Census 2010
+            </h1>
+            <ul id="global-nav">
+                <li><span class="black">Complete List of: </span><a href="#">Cities</a>/<a href="#">Counties</a>&nbsp;|&nbsp;</li>
+                <li><a href="#">About this Project</a>&nbsp;|&nbsp;</li>
+
+                <li><a href="#">Source Data</a>&nbsp;|&nbsp;</li>
+                <li><a href="#">Help</a></li>
+            </ul>
+            <div class="filterbar">
+                <form action="." id="geofilter">
+                <label for="geodata">View Census data by: </label>
+                    <select name="geodata" id="geodata">
+
+<!--                        <option value="">State</option> -->
+                        <option value="county">County</option>
+                        <option value="city">City</option>
+<!--						<option value="">Legislative District</option>										 -->
+                    </select>
+                </form>
+                <!-- <form action="" class="census-search" id="">
+                    <label for="searchfield">Search: </label>
+                    <input type="text" id="searchfield" name="searchfield" size="30" />
+                </form> -->
+
+            </div>
+        </div><!-- #census-header -->
+        
+        
+        <div id="top-level">
+            <div id="census-map">
+                <!-- holder for google map -->
+            </div><!-- #census-map -->
+            <div id="map-nav">
+                <form action="" id="fieldfilter" style="float:left; margin-right:10px;">
+                    <label for="fielddata">Map by:</label>
+
+                    <select name="fielddata" id="fielddata">
+                        <option value="sex-and-age-total-population">Population</option>
+                        <option value="sex-and-age-median-age-both-sexes">Median Age</option>
+                        <option value="sex-and-age-median-age-male">Median Age - Men</option>
+                        <option value="sex-and-age-median-age-female">Median Age - Women</option>
+                        <option value="average-household-size-of-occupied-housing-units-by-tenure-owner-occupied">Household size - Owner-occupied</option>
+                        <option value="average-household-size-of-occupied-housing-units-by-tenure-average-household-size-renter-occupied">Household size - Renter-occupied</option>
+                        <option value="rental-vacancy-rate-precent-total">Rental vacancy rate</option>
+                    </select>
+                </form>
+                <div id="key">
+                    <div id="item01" class="keywrapper">
+                        <div class="keybox"></div>
+                        <p class="keytext"></p>
+                    </div>
+                    <div id="item02" class="keywrapper">
+                        <div class="keybox"></div>
+                        <p class="keytext"></p>
+                    </div>
+                    <div id="item03" class="keywrapper">
+                        <div class="keybox"></div>
+                        <p class="keytext"></p>
+                    </div>
+                    <div id="item04" class="keywrapper">
+                        <div class="keybox"></div>
+                        <p class="keytext"></p>
+                    </div>
+                </div>
+            </div><!-- #map-nav -->
+
+            <div id="main-info">
+                <h2 id="region" style="margin:0; font-size:32px;">Colorado</h2>
+                <div id="primary-data">
+                    <p>2010 Population:</p>
+                    <p class="big-number" id="population-2010">5,029,196{% get_value_for_location_field 'Colorado' 'State' 'Sex and Age' '1' %}</p>
+                    <!--
+                    <p>2000 Population:</p>
+                    <p class="big-number" id="population-2000">1,000,000</p>
+
+                    <p>Total Change:</p>
+                    <p class="big-number">+ 234,567 <span class="small-number">(21.1%)</span></p>
+                    -->										
+                </div><!-- #primary-data -->
+                <div id="secondary-data" style="height:275px;">
+                    <!--
+                    <h4>Geographical data:</h4>
+                    <p><strong>Square miles</dt><dd id="">123,456</p> 
+                    <p><strong>Population density</dt><dd id="">19.0 per sq mile.</p> 
+                    <p></p>
+                -->
+
+                    <h4>Racial makeup:</h4>
+                    <dl>
+                        <dt>White:</dt><dd id="race-one-race-white">81%</dd>
+                        <dt>Black:</dt><dd id="race-one-race-black-or-african-american">4%</dd>
+                        <dt>Asian:</dt><dd id="race-one-race-asian">2.7%</dd>
+                    </dl>
+
+                    <h4>Age:</h4>
+                    <dl>
+                        <dt>Median Age</dt><dd id="sex-and-age-median-age-both-sexes">43.8</dd>
+                        <dt>Median Age &ndash; Men</dt><dd id="sex-and-age-median-age-male">43.3</dd>
+                        <dt>Median Age &ndash; Women</dt><dd id="sex-and-age-median-age-female">44.5</dd>
+                    </dl>
+                    
+                    
+                    <h4>Housing:</h4>
+                    <dl>
+                        <dt>Average household size (owner-occupied)</dt><dd id="average-household-size-of-occupied-housing-units-by-tenure-owner-occupied">2.6</dd>
+                        <dt>Average household size (renter-occupied)</dt><dd id="">2.3</dd>
+                        <dt>Rental vacancy rate</dt><dd id="rental-vacancy-rate-precent-total">7.8%</dd>
+                    </dl>
+			
+                </div><!-- #secondary-data -->
+
+            </div><!-- #main-info -->			
+        </div><!-- #top-level> -->	
+        
+            
+        <div id="bottom-level">
+            <div id="table-filters">
+                <h3>Table header here</h3>
+                <form action="" class="searchable">
+                    <label for="row-number">Show results: </label>
+                    <select name="num-results" id="num-results">
+                        <option value="10">10</option>
+
+                        <option value="20" selected>20</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="all">All</option>																				
+                    </select>				
+                    <!--	
+                    <label for="search-form">Search </label>
+                    <input type="text" id="" size="30"/>
+                -->
+
+                </form>
+            </div>
+            
+            
+            <table id="census-table" class="tablesorter">
+                <thead> 
+                    <tr>
+                        <th>Age</th>
+                        <th>Population</th>
+                        <th>% of total</th>
+
+                        <th>Male</th>
+                        <th>% of male total</th>
+                        <th>Female</th>
+                        <th>% of female total</th>
+                    </tr>
+                </thead> 
+                <tbody> 
+                    <tr>
+
+                        <td class="item-name">
+                            Under 10
+                        </td>
+                        <td class="number">
+                            242,967
+                        </td>
+                        <td class="percentage">
+                            15.5%
+                        </td>
+                        <td class="number">
+
+                            124,355
+                        </td>
+                        <td class="percentage">
+                            15.8%
+                        </td>
+                        <td class="number">
+                            118,612
+                        </td>
+                        <td class="percentage">
+                            15.2%
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="item-name">
+                            10 to 19 years
+                        </td>
+                        <td class="number">
+                            232,314
+                        </td>
+                        <td class="percentage">
+                            14.8%
+                        </td>
+
+                        <td class="number">
+                            119,040
+                        </td>
+                        <td class="percentage">
+                            15.2%
+                        </td>
+                        <td class="number">
+                            113,274
+                        </td>
+                        <td class="percentage">
+
+                            14.5%
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="item-name">
+                            20 to 29 years
+                        </td>
+                        <td class="number">
+                            214,943
+                        </td>
+
+                        <td class="percentage">
+                            13.7%
+                        </td>
+                        <td class="number">
+                            109,600
+                        </td>
+                        <td class="percentage">
+                            14.0%
+                        </td>
+                        <td class="number">
+
+                            105,343
+                        </td>
+                        <td class="percentage">
+                            13.5%
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="item-name">
+                            30 to 39 years
+                        </td>
+
+                        <td class="number">
+                            199,076
+                        </td>
+                        <td class="percentage">
+                            12.7%
+                        </td>
+                        <td class="number">
+                            101,355
+                        </td>
+                        <td class="percentage">
+
+                            12.9%
+                        </td>
+                        <td class="number">
+                            97,721
+                        </td>
+                        <td class="percentage">
+                            12.5%
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td class="item-name">40 to 49 years</td>
+                        <td class="number">198,324</td>
+                        <td class="percentage">12.7%</td>
+                        <td class="number"> 99,494</td>
+                        <td class="percentage">12.7%</td>
+                        <td class="number">98,830</td>
+
+                        <td class="percentage">12.6%</td>
+                    </tr>
+                    <tr>
+                        <td class="item-name"> 50 to 59 years</td>
+                        <td class="number">201,974</td>
+                        <td class="percentage">12.9%</td>
+
+                        <td class="number">100,101</td>
+                        <td class="percentage">12.7%</td>
+                        <td class="number">101,873</td>
+                        <td class="percentage"> 13.0%</td>
+                    </tr>
+                    <tr>
+
+                        <td class="item-name">
+                            60 to 69 years
+                        </td>
+                        <td class="number">
+                            146,744
+                        </td>
+                        <td class="percentage">
+                            9.4%
+                        </td>
+                        <td class="number">
+
+                            72,690
+                        </td>
+                        <td class="percentage">
+                            9.3%
+                        </td>
+                        <td class="number">
+                            74,054
+                        </td>
+                        <td class="percentage">
+                            9.5%
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td class="item-name">
+                            70 to 79 years
+                        </td>
+                        <td class="number">
+                            80,384
+                        </td>
+                        <td class="percentage">
+                            5.1%
+                        </td>
+
+                        <td class="number">
+                            38,608
+                        </td>
+                        <td class="percentage">
+                            4.9%
+                        </td>
+                        <td class="number">
+                            41,776
+                        </td>
+                        <td class="percentage">
+
+                            5.3%
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="item-name">
+                            80 and older
+                        </td>
+                        <td class="number">
+                            50,856
+                        </td>
+
+                        <td class="percentage">
+                            3.2%
+                        </td>
+                        <td class="number">
+                            20,081
+                        </td>
+                        <td class="percentage">
+                            2.6%
+                        </td>
+                        <td class="number">
+
+                            30,775
+                        </td>
+                        <td class="percentage">
+                            3.9%
+                        </td>
+                    </tr>
+                </tbody>
+                <tfoot>
+                <tr>
+                    <th>Total</th>
+
+                    <th>1,567,582</th>
+                    <th>100%</th>
+                    <th>785,324</th>
+                    <th>100%</th>
+                    <th>782,258</th>
+                    <th>100%</th>
+
+                </tr>
+                </tfoot>
+            </table>
+        </div><!-- #bottom-level -->
+        
+        
+        <!-- the tabs -->
+        <!-- <ul class="tabs">
+            <li><a href="#">Tab 1</a></li>
+            <li><a href="#">Tab 2</a></li>
+            <li><a href="#">Tab 3</a></li>
+        </ul> -->
+
+        <!-- tab "panes" -->
+        <!-- <div class="panes">
+            <div>pane 1 content</div>
+            <div>pane 2 content</div>
+            <div>pane 3 content</div>
+        </div> -->
+
+        
+        
+        </div>
+        
+                
+</div><!-- #container -->
+<!--
+<script type="text/javascript" src="http://maps.google.com/maps/api/js?sensor=false"></script>
+-->
+<script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery-1.6.min.js"></script> 
+<script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery-ui.min.js"></script>
+<script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery.tablesorter.min.js"></script>
+
+    <script type="text/javascript">
+        (function() {
+            //google.load( 'jquery', '1.6' );
+            // google.load isn't working for Maps V3, use script tag for now
+            //google.load( 'maps', apiver, { sensor:'false' } );
+            if( parseInt(apiver) < 3 )
+                google.load( 'maps', apiver );
+            else
+                document.write(
+                    '<script type="text/javascript" ',
+                    'src="http://maps.google.com/maps/api/js',
+                    '?v=', apiver, '&sensor=false">',
+                    '<\/script>'
+                );
+        })();
+    </script>
+    
+    <script type="text/javascript" src="http://extras.denverpost.com/media/app/census/polygonzo/code/logger.js"></script>
+    <!-- <script type="text/javascript" src="http://extras.denverpost.com/media/app/census/polygonzo/code/polygonzo.js"></script>
+     <script type="text/javascript" src="http://extras.denverpost.com/media/app/census/polygonzo/code/polymap.js"></script> -->
+    
+    
+    <script type="text/javascript" src="/media/polygonzo/polygonzo.js"></script>
+    <script type="text/javascript" src="/media/polygonzo/polymap.js"></script>
+<script type="text/javascript">
+// testmap.js
+// By Michael Geary - http://mg.to/
+// See UNLICENSE or http://unlicense.org/ for public domain notice
+
+// Outer wrapper function
+(function( $ ) {
+
+var states = PolyMap.states;
+var polyTimer;
+
+function S() {
+    return Array.prototype.join.call( arguments, '' );
+}
+
+function htmlEscape( str ) {
+    var div = document.createElement( 'div' );
+    div.appendChild( document.createTextNode( str ) );
+    return div.innerHTML;
+}
+
+function optionHTML( value, name, selected, disabled ) {
+    var id = value ? 'id="option-' + value + '" ' : '';
+    var style = disabled ? 'color:#AAA; font-style:italic; font-weight:bold;' : '';
+    selected = selected ? 'selected="selected" ' : '';
+    disabled = disabled ? 'disabled="disabled" ' : '';
+    return S(
+        '<option ', id, 'value="', value, '" style="', style, '" ', selected, disabled, '>',
+            name,
+        '</option>'
+    );
+}
+
+function randomInt( n ) {
+    return Math.floor( Math.random() * n );
+}
+
+function randomElement( array ) {
+    return array[ randomInt(array.length) ];
+};
+
+(function() {
+    var index = 0;
+    function option( value, name, selected, disabled ) {
+        var html = optionHTML( value, name, selected, disabled );
+        ++index;
+        return html;
+    }
+    function stateOption( state, selected ) {
+        state.selectorIndex = index;
+        return option( state.abbr, state.name, selected );
+    }
+    
+    stateSelector = function() {
+        return S(
+            '<select id="stateSelector">',
+                option( 'US', '50 States, DC, and Puerto Rico', true ),
+                option( 'CONGRESSIONAL', 'All US Congressional Districts' ),
+                option( 'COUNTY', 'All 3199 Counties (slow in IE!)' ),
+                states.map( function( state ) {
+                    return stateOption( state, false );
+                }).join(''),
+            '</select>'
+        );
+    }
+})();
+
+function divide_and_round(top,base)
+{
+    var value = Math.round(top*10/base*10);
+    return value;
+}
+
+function number_format(nStr)
+{
+    // This function formats numbers by adding commas,
+    // and also cuts down any decimals to two places.
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1))
+    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    return x1 + x2.substr(0,3);
+}
+
+function load() {
+    var state, region, marker;
+    var $window = $(window), $map = $('#census-map');
+    
+    var pm = window.pm = new PolyMap({
+        container: $map[0],
+        //shapes: '/media/shapes/json/',
+        shapes: '/media/shapes/',
+        events: {
+            load: function( region_ ) {
+                region = region_;
+                console.log(region);
+                colorize_by_value( region, 'sex-and-age-total-population', 'county');
+                
+            },
+            /*
+            drew: function() {
+                if( $('#chkAnimate').attr('checked') ) {
+                    clearTimeout( polyTimer );
+                    polyTimer = setTimeout( function() {
+                        log.reset( true );
+                        colorize( region );
+                        pm.redraw();
+                    }, 25 );
+                }
+            },
+            */
+            over: function( feature ) {
+                
+                $('#status').html( featureName(feature) );
+                if( marker ) {
+                    pm.removeMarker( marker );
+                    marker = null;
+                }
+                if( feature ) {
+                    var slug = feature.properties.name.toLowerCase().replace(/ /, '-');
+                    var pop = county[slug]['sex-and-age-total-population'];
+
+                    console.log("VAR slug: ", slug)
+                    $('#region').html(featureName(feature))
+                    $('#population-2010').html(number_format(pop));
+                    $('#race-one-race-white').html(divide_and_round(county[slug]['race-one-race-white'],pop) + "%");
+                    $('#race-one-race-black-or-african-american').html(divide_and_round(county[slug]['race-one-race-black-or-african-american'],pop) + "%");
+                    $('#race-one-race-asian').html(divide_and_round(county[slug]['race-one-race-asian'],pop) + "%");
+                    //$('#').html(county[slug]['']);
+                    $('#sex-and-age-median-age-both-sexes').html(county[slug]['sex-and-age-median-age-both-sexes']);
+                    $('#sex-and-age-median-age-male').html(county[slug]['sex-and-age-median-age-male']);
+                    $('#sex-and-age-median-age-female').html(county[slug]['sex-and-age-median-age-female']);
+                    $('#average-household-size-of-occupied-housing-units-by-tenure-owner-occupied').html(county[slug]['average-household-size-of-occupied-housing-units-by-tenure-owner-occupied']);
+                    $('#average-household-size-of-occupied-housing-units-by-tenure-average-household-size-renter-occupied').html(county[slug]['average-household-size-of-occupied-housing-units-by-tenure-average-household-size-renter-occupied']);
+                    $('#rental-vacancy-rate-precent-total').html(county[slug]['rental-vacancy-rate-precent-total'] + "%");
+                    var centroid = feature.properties.centroid;
+                    var latlng = new google.maps.LatLng( centroid[1], centroid[0] );
+                    marker = new google.maps.Marker( pm.v2 ? latlng : { position: latlng } );
+                    pm.addMarker( marker );
+                }
+                
+            },
+            click: function( feature ) {
+                alert( 'Clicked ' + featureName(feature) );
+            }
+        }
+    });
+    
+    var match = location.search.match( /\Wstate=(\w+)/ );
+    var abbr = match && match[1] || 'CO';
+    console.log("VAR abbr: ", abbr)
+    $('#stateSelector')
+        .val( abbr.toUpperCase() )
+        .change( stateSelectorChange )
+        .keyup( stateSelectorChange )
+        .trigger( 'change' );
+    
+    $('#fielddata')
+        .change( fieldSelectorChange )
+        .keyup( fieldSelectorChange )
+        .trigger( 'change' );
+    
+    $('#geodata')
+        .change( geoSelectorChange )
+        .keyup( geoSelectorChange )
+        .trigger( 'change' );
+    
+    function testMarker( name ) {
+        return {
+            url: 'images/' + name + '.png',
+            size: { x: 16, y: 16 },
+            anchor: { x: 7, y: 7 }
+        };
+    }
+    var testMarkers = [ testMarker('add'), testMarker('delete') ];
+    
+    function colorize_by_value( region, field, location_type ) {
+        // Test with random colors
+        /*
+        1. Get the values we need to sort out.
+        2. Find the min and the max.
+        3. Based on that range, calculate the color.
+            a. Base color is on HSB. 
+            b. Multiply B value by percentage value of max.
+            c. Convert HSB value to RGB to HEX.
+        */
+        //field = 'sex-and-age-total-population';
+        
+        // Figure out the max, min value
+        var value_max = 0;
+        var value_min  = 1000000;
+        ( region.geo.features || [region] ).forEach( function( feature ) {
+            
+            var slug = feature.properties.name.toLowerCase().replace(/ /, '-');
+            
+            if ( typeof(county[slug]) != "undefined" )
+            {
+                var value = parseInt(county[slug][field]);
+                if ( value < 10 ) value = parseFloat(county[slug][field]);
+                
+                if ( value > value_max ) 
+                {
+                    console.log('MAX', county[slug][field], value_max );
+                    value_max = value;
+                    
+                }
+                if ( value < value_min ) 
+                {
+                    console.log('MIN', county[slug][field], value_min );
+                    value_min = value;
+                    
+                }
+            }
+        });
+        var value_range = value_max - value_min;
+        
+        // Generate the key.
+        var divisor = Math.round( ( value_range ) / 3 );
+        if ( value_max < 10 ) divisor = value_range / 3;
+        console.log(value_max, divisor);
+        for (i = 1; i < 5; i++)
+        {
+            var label_text, label_color = '';
+            if ( i == 1 )
+            {
+                label_text = '< ' + number_format(divisor + value_min);
+                label_color = '#FFF';
+            }
+            else if ( i == 4 )
+            {
+                label_text = '> ' + number_format( divisor * 3  + value_min );
+                var red = 255;
+                var green = 255 - Math.round(1.28*100);
+                var blue = 255 - Math.round(2.55*100);
+                label_color = "rgb(" + red + "," + green + "," + blue +")";
+            }
+            else
+            {
+                label_text = number_format( divisor * ( i - 1 ) + value_min ) + ' - ' + number_format( divisor * i + value_min );
+                var percent = ( i - 1 ) * 33;
+                var red = 255;
+                var green = 255 - Math.round(1.28*percent);
+                var blue = 255 - Math.round(2.55*percent);
+                label_color = "rgb(" + red + "," + green + "," + blue +")";
+                
+            }
+            $('#item0' + i + ' p').html(label_text);
+            $('#item0' + i + ' div').css('background-color', label_color);
+        }
+        
+                
+        
+        console.log('FIELD', field );
+        region.geo.markers = !! $('#chkMarkers')[0].checked;
+        ( region.geo.features || [region] ).forEach( function( feature ) {
+            var slug = feature.properties.name.toLowerCase().replace(/ /, '-');
+            
+            
+            feature.fillColor = '#CCFFFF';
+            if ( typeof(county[slug]) != "undefined" )
+            {
+                //console.log(feature.properties.name, slug );
+                
+                // To get the color of the map point we:
+                //  1. Subtract the value_min from the value.
+                //  2. Divide that value by the value_range
+                var value_adjusted = parseInt(county[slug][field]) - value_min;
+                if ( parseInt(county[slug][field]) < 10 ) value_adjusted = parseFloat(county[slug][field]) - value_min;
+                
+                var percent = Math.round((value_adjusted/value_range)*100)
+                //console.log('FIELD', county[slug][field], percent, "%"  );
+                //var percent = 50;
+                var red = 255;
+                var green = 255 - Math.round(1.28*percent);
+                var blue = 255 - Math.round(2.55*percent);
+                
+                feature.fillColor =  "rgb(" + red + "," + green + "," + blue +")";
+                //feature.fillOpacity = 0;
+                //feature.fillColor = '#' + Math.random().toString(16).slice(2,8);
+                //feature.fillOpacity = Math.random() * .5 + .3;
+
+            }
+            feature.fillOpacity = .9;
+            feature.strokeColor = '#000000';
+            feature.strokeOpacity = 0.2;
+            feature.strokeWidth = 2.5;
+            //feature.marker = randomElement( testMarkers );
+        });
+    }
+    
+    function featureName( feature ) {
+        if( ! feature ) return 'nowhere';
+        var props = feature.properties;
+        var abbr = props.state || feature.container.properties.state;
+        var state = PolyMap.stateByAbbr(abbr).name;
+        var local = feature.properties.name;
+        switch( props.kind ) {
+            case 'cd': return state + ( local == 'One' ? ' (one district)' : ' District ' + local );
+            case 'county': return local + ' County';
+        }
+        return state;
+    }
+    
+    function stateSelectorChange() {
+        loadState( this.value.replace('!','').toLowerCase() );
+    }
+    
+    function fieldSelectorChange() {
+        console.log(this.value);
+        
+        if ( typeof(region) != "undefined" )
+        {
+            console.log(document.getElementById('geodata').value);
+            colorize_by_value( region, this.value, document.getElementById('geodata').value);
+            //colorize_by_value( region, this.value, 'county');
+            pm.redraw();
+        }
+        else console.log("NO REDRAW", document.getElementById('geodata').value);
+        //loadState( this.value.replace('!','').toLowerCase() );
+    }
+    
+    function geoSelectorChange() {
+        console.log(this.value);
+        
+        if ( typeof(region) != "undefined" )
+        {
+            console.log(document.getElementById('fielddata').value);
+            colorize_by_value( region, document.getElementById('fielddata').value, this.value);
+            pm.redraw();
+        }
+        //loadState( this.value.replace('!','').toLowerCase() );
+    }
+    
+    function loadState( value ) {
+        if( value == state ) return;
+        console.log("VAR state: ", state)
+        console.log("VAR value: ", value)
+        state = value;
+        pm.load({ region:state });
+    }
+    
+    function loadCounty( value ) {
+        if( value == state ) return;
+        console.log("VAR state: ", state)
+        console.log("VAR value: ", value)
+        state = value;
+        pm.load({ region:state });
+    }
+
+
+}
+
+$(window).bind( 'load', load );
+
+})( jQuery );
+// end outer wrapper function
+
+
+    $(document).ready(function() 
+        { 	
+            $("#census-table").tablesorter();
+            $("ul.tabs").tabs("div.panes > div");
+            var latlng = new google.maps.LatLng(38.884883, -105.776367),
+                myOptions = {
+                zoom: 6,
+                center: latlng,
+                disableDefaultUI: true,
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.SMALL
+                  },
+                mapTypeControl: true,
+                mapTypeId: google.maps.MapTypeId.TERRAIN
+            };
+            
+            //map = new google.maps.Map(document.getElementById("census-map"), myOptions); 
+        }
+
+    );
+</script>
+
+    <div id="panel" style="display:none;">
+        <div style="background-color:#EEE; padding:6px; border-bottom:1px solid #AAA;">
+            <div style="margin-bottom:6px;">
+                <script type="text/javascript">
+                    if( $.browser.mozilla && window.console && console.log ) {
+                        document.write(
+                            '<div style="color:red; padding-bottom:8px;">',
+                                '<b>Disable Firebug</b> for faster performance',
+                            '</div>'
+                        );
+                    }
+                    document.write( stateSelector() );
+                </script>
+            </div>
+            
+            
+            <div style="margin-top:6px;">
+                
+                <input type="checkbox" id="chkMarkers">
+                <label for="chkMarkers">Markers</label>
+                                
+                &nbsp;
+                <input type="checkbox" id="chkAnimate" notchecked="checked">
+                <label for="chkAnimate">Animate</label>
+                
+            </div>
+        
+        </div>
+        
+        <div id="status" style="height:3em; margin:6px; border-bottom:1px solid #CCC;">
+        </div>
+        
+        <div id="log" style="font-family:Consolas,Courier New,monospace;">
+        </div>
+        
+    </div>
+    
+    <div id="testmap">
+    </div>
+{% endblock main %}

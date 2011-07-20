@@ -1,0 +1,354 @@
+{% extends "census/base.html" %}
+{% block title %}Colorado {{ location_type|title }} Census Map{% endblock%}
+{% block description %}{% endblock%}
+
+{% block style %}
+#map 
+{
+    width:600px; 
+    height:470px; 
+    float:left; 
+    background: url('http://extras.denverpost.com/media/app/census/map/{{ location_type }}-600.png') no-repeat scroll 0px 12px transparent;
+}
+#legend { float: left; margin-top: 25px; }
+#controls
+{
+    float:left; 
+    width:900px;
+    height:auto;
+}
+#controls h5 { margin-top:10px; }
+
+
+/*CSS for the Horizontal Accordion interface.
+*/
+
+.haccordion{
+padding: 0;
+}
+
+.haccordion ul{
+margin: 0;
+padding: 0;
+list-style: none;
+overflow: hidden; /*leave as is*/
+}
+
+
+.haccordion li{
+margin: 0;
+padding: 0;
+display: block; /*leave as is*/
+width: 100%; /*For users with JS disabled: Width of each content*/
+height: auto; /*For users with JS disabled: Height of each content*/
+overflow: hidden; /*leave as is*/
+float: left; /*leave as is*/
+}
+
+.haccordion li .hpanel{
+width: 100%; /*For users with JS disabled: Width of each content*/
+height: auto;  /*For users with JS disabled: Height of each content*/
+}
+
+#fields li{
+margin:0 3px 0 0; /*Spacing between each LI container*/
+}
+
+#fields li .hpanel{
+padding: 5px; /*Padding inside each content*/
+/* border: 5px solid lightblue; */
+background-color:rgb(245,245,245);
+}
+
+/* override the styles the horizontal accordian assigns to all child li's */
+#fields li li { width:auto; float:none; }
+{% endblock style %}
+
+
+{% block head %}
+{% comment %}
+{% load dajaxice_templatetags %}
+{% dajaxice_js_import %}
+{% endcomment %}
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/base/jquery-ui.css" rel="stylesheet" type="text/css"/>
+<script src="http://extras.denverpost.com/media/app/census/dajaxice.core.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js" type="text/javascript"></script>
+<script src="/media/openlayers/OpenLayers.js" type="text/javascript"></script>
+<script type="text/javascript">
+    var map;
+    var center_lon = 4.5;
+    var center_lat = -3.5;
+    var ul_lon = 0.0;
+    var ul_lat = 0.0;
+    var lr_lon = 9.0;
+    var lr_lat = -7.0;
+    
+    function show_props(obj, obj_name) 
+    {  
+      var result = ""; 
+      for (var i in obj)  
+        result += obj_name + "." + i + " = " + obj[i] + "<br><br>\n";  
+      return result;  
+    }  
+    
+    function init() 
+    {
+        var layer, options, tracks;
+        var base = (lr_lon - ul_lon) / 800.0;
+        
+        options = {
+            tileSize: new OpenLayers.Size(400, 300),
+            //resolutions: [base, base*1.5, base*1.3, base, base/4],
+            //resolutions: [.0128], //for 720-wide
+            resolutions: [.015],    //for 600-wide
+            controls: []
+        };
+        map = new OpenLayers.Map("map", options);
+        layer = new OpenLayers.Layer.WMS("Colorado County Map",
+                "",
+                {layers: "base",
+                 format: "image/png"});
+        map.addLayer(layer);
+        map.setCenter(new OpenLayers.LonLat(center_lon, center_lat));
+        //map.addControl(new OpenLayers.Control.LayerSwitcher());
+        
+        
+        var layer_style = OpenLayers.Util.extend({}, OpenLayers.Feature.Vector.style['default']);
+        layer_style = {
+            //fillColor: "#ff7fff",
+            fillColor: "rgb(255,255,255)",
+            fillOpacity: 0.5,
+            //strokeColor: "#000000",
+            strokeOpacity: 0.5,
+            strokeWidth: 1,
+            pointRadius: 20
+        };
+        {% ifequal location_type "city" %}layer_style.pointRadius = 10;{% endifequal %}
+
+        {% for location in location_list %}
+        var vectorLayer = new OpenLayers.Layer.Vector("{{ location.name }}", {});
+        var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point({{ location.center.get_x }}, {{ location.center.get_y }}),
+            {},
+            layer_style
+        );
+        vectorLayer.addFeatures(feature);
+        map.addLayer(vectorLayer);
+        {% endfor %}
+        
+        //document.getElementById('controls').innerHTML = '<pre>' +  show_props(points, 'object') + '</pre>';
+        
+}
+
+
+
+function number_format(nStr)
+{
+    // This function formats numbers by adding commas
+    nStr += '';
+    x = nStr.split('.');
+    x1 = x[0];
+    x2 = x.length > 1 ? '.' + x[1] : '';
+    var rgx = /(\d+)(\d{3})/;
+    while (rgx.test(x1))
+    x1 = x1.replace(rgx, '$1' + ',' + '$2');
+    return x1 + x2;
+}
+
+
+
+function update_map(data)
+{
+    // We will get two JSON objects back, one with the location name and ids
+    // and the other with the ranked values data.
+    // 
+    // Once we have this we need to:
+    //  1. Write out the list to the div#legend
+    //  2. Update the maps
+
+
+    var layer_style = {
+        fillColor: "#007fff",
+        fillOpacity: 0.75,
+        //strokeColor: "#000000",
+        strokeOpacity: 0.5,
+        strokeWidth: 1,
+        pointRadius: 20
+    };
+    {% ifequal location_type "city" %}layer_style.pointRadius = 10;{% endifequal %}
+     {% ifequal location_type "town" %}layer_style.pointRadius = 10;{% endifequal %}
+        
+    if(data!=Dajaxice.EXCEPTION){
+        //alert(data.values);
+        var obj = jQuery.parseJSON(data.values);
+        //alert(data.values)
+        //alert(obj[0].pk)
+        var i = 0
+        for ( var item in obj )
+        {
+            // ***What if not all locations have a value to map? We gotta get rid of 'em.
+           //document.getElementById('legend').innerHTML =  document.getElementById('legend').innerHTML + '<pre>' +  show_props(obj[i], 'object') + '</pre>';
+            var this_val = obj[i].fields.value;
+            var this_loc = obj[i].fields.location;
+            var is_percent = '';
+            var this_val
+            
+            // To get the color of the map point we do some division and...
+            var percent = Math.round((this_val/data.value_max)*100)
+            var red = 255
+            var green = 255 - Math.round(1.28*percent)
+            var blue = 255 - Math.round(2.55*percent)
+            layer_style.fillColor = "rgb(" + red + "," + green + "," + blue +")";
+            
+            
+            
+            
+            // Add the item to the list in the legend  
+            // Figure out if it's a decimal or an integer.
+            // If it's a decimal number, it's 95% likely to be a percentage
+            if ( Math.round(this_val) == this_val && this_val > 99 )
+            {
+                this_val = Math.round(this_val)
+                
+                // Commas make large numbers more readable
+                if ( this_val > 999 )
+                {
+                    this_val = number_format(this_val);
+                }
+            }
+            else
+            {
+                is_percent = '%';
+            }
+            
+            
+            document.getElementById('legend_list').innerHTML = document.getElementById('legend_list').innerHTML + '<li id="' + '">' + this_loc + ': ' + this_val + is_percent + '</li>';
+            
+
+            
+            
+            
+            // Here we now kill the existing point and put a new one
+            // in its place, with the new color.
+            var map_layer = map.getLayersByName(this_loc);
+            var geopoint = map_layer[0].features[0].geometry
+            map_layer[0].features[0].destroy()
+            
+            var feature = new OpenLayers.Feature.Vector(
+                new OpenLayers.Geometry.Point(geopoint.x, geopoint.y),
+                {},
+                layer_style
+            );
+            map_layer[0].addFeatures(feature);
+            
+            
+            i = i + 1
+        }
+        //document.getElementById('legend').innerHTML = '<pre>' +  show_props(geopoint , 'object') + '</pre>';
+    }
+    else
+    {
+        //alert('Error');
+        document.getElementById('legend_explainer').innerHTML='Sorry, we had an error and this data cannot be displayed.';    
+    }
+}
+
+
+function show_hide(div_id)
+{
+    if ( document.getElementById(div_id).style.display == 'none' )
+    {
+        $('#' + div_id).show('fast');
+    }
+    else
+    {
+        $('#' + div_id).hide('fast');
+    }
+    
+}
+
+
+function map_calls(location_type, pk, name_long)
+{
+    // A wrapper function for the actions that happen when a radio button
+    // is selected.
+    Dajaxice.data.update_map('update_map',{'location_type':location_type,'id':pk }); 
+    document.getElementById('legend_list').innerHTML = '';
+    document.getElementById('legend_hed').innerHTML=name_long;
+    document.getElementById('legend_links').innerHTML='<li>&raquo; <a href="?id=' + pk + '&amp;year=2009">Permanent link to this map</a></li>';
+    document.getElementById('legend_explainer').innerHTML='';    
+    
+}
+
+</script>
+
+
+
+<script type="text/javascript" src="/media/js/haccordion.js"></script>
+<script type="text/javascript">
+
+haccordion.setup({
+	accordionid: 'fields', //main accordion div id
+	paneldimensions: {peekw:'100px', fullw:'400px', h:'auto'},
+	selectedli: [0, true], //[selectedli_index, persiststate_bool]
+	collapsecurrent: false //<- No comma following very last setting!
+})
+
+</script>
+{% endblock %}
+
+
+
+{% block bodytag %}onload="init();"{% endblock %}
+{% block main %}
+{% load humanize data_extras %}
+<h1>Colorado {{ location_type|title }} Census Map</h1>
+      
+<div id="map"></div>
+<div id="legend">
+    <div>
+        <h2 id="legend_hed">{% if field %}{{ field }}{% endif %}</h2>
+        <ol id="legend_list">{% if value_list %}{% for value in value_list %}<li>{{ value.location.name }}: {% get_value value %}</li>{% endfor %}{% endif %}</ol>
+        <ul id="legend_links"></ul>
+        <p id="legend_explainer">{% get_explainer 'p' survey_type '2009' %}</p>
+    </div>
+</div>
+<div id="controls">
+    <!-- <h2>Years</h2> -->
+    
+    <!-- <h2>Fields</h2> -->
+    <div id="fields" class="haccordion">
+    <ul>
+    {% for field in field_list %}
+    {% ifchanged field.category %}
+    {% if not forloop.first %}</div></li>{% endif %}
+    <li>
+        <div class="hpanel">
+        <h3 style="padding-top:0;">{{ field.get_category_display }}</h3>{% endifchanged %}
+        <h4><a href="#" onClick="show_hide('{{ field.slug }}'); return false;">&raquo; {{ field }}</a></h4>
+        <div id="{{ field.slug }}" style="display:none;">
+        {% for child in field.children.all|dictsort:"pk" %}
+            <h5><input type="radio" name="map_button" value="{{ child.pk }}" onclick="map_calls('{{ location_type }}', '{{ child.pk }}', '{{ child.name_long|escapejs }}' );"/>{{ child }}</h5>
+            {% if not child.is_leaf_node %}
+            <ul>{% for grandchild in child.children.all|dictsort:"pk" %}
+                <li><input type="radio" name="map_button" value="{{ grandchild.pk }}" onclick="map_calls('{{ location_type }}', '{{ grandchild.pk }}', '{{ grandchild.name_long|escapejs }}' );"/>{{ grandchild }}{% if not grandchild.is_leaf_node %}
+                    <ul>{% for greatgrandchild in grandchild.children.all|dictsort:"pk" %}
+                        <li><input type="radio" name="map_button" value="{{ greatgrandchild.pk }}" onclick="map_calls('{{ location_type }}', '{{ greatgrandchild.pk }}', '{{ greatgrandchild.name_long|escapejs }}' );"/>{{ greatgrandchild }}{% if not greatgrandchild.is_leaf_node %}
+                            <ul>{% for greatgreatgrandchild in greatgrandchild.children.all|dictsort:"pk" %}
+                                <li><input type="radio" name="map_button" value="{{ greatgreatgrandchild.pk }}" onclick="map_calls('{{ location_type }}', '{{ greatgreatgrandchild.pk }}', '{{ greatgreatgrandchild.name_long|escapejs }}' );"/>{{ greatgreatgrandchild }}</li>{% endfor %}
+                            </ul>                     
+                            {% endif %}</li>{% endfor %}
+                    </ul>{% endif %}</li>{% endfor %}
+            </ul>
+        {% endif %}{% endfor %}
+        
+        </div>
+    {% endfor %}
+    </div></li>
+    </ul>
+    </div>
+</div>
+<style type="text/css">
+.olImageLoadError { display:none; }
+</style>
+{% endblock main %}

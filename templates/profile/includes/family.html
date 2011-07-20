@@ -1,0 +1,167 @@
+{% load humanize %}
+{% load custom_filters %}
+<div id="family" class="tab_content">
+<div class="featured">
+       <h4>Total population graphs 2010?</h4>
+       <ul>
+           <li>tpa: {{ ages.total_population_asian_2010 }} </li>
+           <li>tpb: {{ ages.total_population_black_2010 }}</li>
+           <li>tpL: {{ ages.total_population_Latino_2010 }}</li>
+           <li>tpw: {{ ages.total_population_white_2010 }}</li>
+       
+       </ul>
+   </div>
+   <div class="featured">
+   <h1>BIG-GRAPH-HERE</h1>
+</div>
+     <table id="census-table" class="tablesorter">
+            <thead> 
+                <tr>
+                    <th>Age</th>
+                    <th>Total</th>
+                    <th>%</th>
+                    <th>Asian</th>
+                    <th>%</th>
+                    <th>Black</th>
+                    <th>%</th>
+                    <th>Latino</th>
+                    <th>%</th>
+                    <th>White</th>
+                    <th>%</th>
+                </tr>
+            </thead> 
+            <tbody> 
+                <tr>
+                    <td class="item-name">
+                        Under 5
+                    </td>
+                    <td class="number">
+                        {{ ages.total_population_under_5_years_all_races_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        {{ ages.percent_under_5_all_races_2010|percentage }}
+                    </td>
+                    <td class="number">
+
+                        {{ ages.total_asian_under_5_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        {{ ages.percent_asian_under_5_2010|percentage }}
+                    </td>
+                    <td class="number">
+                        {{ ages.total_black_under_5_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        {{ ages.percent_black_under_5_2010|percentage }}
+                    </td>
+                    <td class="number">
+                        {{ ages.total_latino_under_5_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        TODO: reload data to fix naming{{ ages.percent_latino_under_5_2010|percentage }} X
+                    </td>
+                    <td class="number">
+                          {{ ages.total_white_under_5_2010|intcomma }}
+                      </td>
+                      <td class="percentage">
+                          {{ ages.percent_white_under_5_2010|percentage }}
+                      </td>
+                </tr>
+                <tr>
+                    <td class="item-name">
+                        Under 18
+                    </td>
+                    <td class="number">
+                        {{ ages.total_under_18_all_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        {{ ages.percent_under_18_2010_all_races|percentage }}
+                    </td>
+                    <td class="number">
+                        {{ ages.total_asian_under_18_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        {{ ages.percent_asian_under_18_2010|percentage }}
+                    </td>
+                    <td class="number">
+                        {{ ages.total_black_under_18_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        {{ ages.percent_black_under_18_2010|percentage }}
+                    </td>
+                    <td class="number">
+                        {{ ages.total_latino_under_18_2010|intcomma }}
+                    </td>
+                    <td class="percentage">
+                        TODO: reload data to fix naming{{ ages.percent_latino_under_18_2010|percentage }} X
+                    </td>
+                    <td class="number">
+                          {{ ages.total_white_under_18_2010|intcomma }}
+                      </td>
+                      <td class="percentage">
+                          {{ ages.percent_white_under_18_2010|percentage }}
+                      </td>
+
+                </tr>
+                <tr>
+
+
+                          <td class="item-name">
+                              65 Plus
+                          </td>
+                          <td class="number">
+                              {{ ages.total_65_and_over_2010_all_races|intcomma }}
+                          </td>
+                          <td class="percentage">
+                              {{ ages.percent_65_and_over_all_races_2010|percentage }}
+                          </td>
+                          <td class="number">
+
+                              {{ ages.total_asian_65_and_over_2010|intcomma }}
+                          </td>
+                          <td class="percentage">
+                              {{ ages.percent_asian_65_plus_2010|percentage }}
+                          </td>
+                          <td class="number">
+                              {{ ages.total_black_65_and_over_2010|intcomma }}
+                          </td>
+                          <td class="percentage">
+                              {{ ages.percent_black_65_plus_2010|percentage }}
+                          </td>
+                          <td class="number">
+                              {{ ages.total_latino_65_and_over_2010|intcomma }}
+                          </td>
+                          <td class="percentage">
+                              TODO: reload data to fix naming{{ ages.percent_latino_65_plus_2010|percentage }} X
+                          </td>
+                          <td class="number">
+                                {{ ages.total_white_65_and_over_2010|intcomma }}
+                            </td>
+                            <td class="percentage">
+                                TODO: RELOAD TO FIX THIS{{ ages.percent_white_under_18_2010|percentage }} X
+                            </td>
+
+                      </tr>
+            </tbody>
+            <tfoot>
+            <!--
+            <tr>
+                <th>Total</th>
+
+                <th>1,567,582</th>
+                <th>100%</th>
+                <th>785,324</th>
+                <th>100%</th>
+                <th>782,258</th>
+                <th>100%</th>
+
+            </tr>
+            -->
+            </tfoot>
+        </table>
+    </div>
+</div>
+    
+    
+    
+</div><!-- /livingAlong -->

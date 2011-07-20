@@ -1,0 +1,3 @@
+{% load humanize data_extras %}
+{% for value in values %}
+            <td class="{% for item in val.statsignificance_set.all %}year{{ item.year }}{% endfor %}">{% get_value value %}</td>{% endfor %}
