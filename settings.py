@@ -2,7 +2,7 @@
 import os.path
 from settings_local import *
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 MANAGERS = ADMINS
