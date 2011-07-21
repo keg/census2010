@@ -10,14 +10,14 @@
                 data.addColumn('number', 'Year 2010');
                 data.addRows(4);
                 data.setValue(0, 0, 'Asian');
-                data.setValue(0, 1, {{ ages.total_population_Asian_2000 }});
+                data.setValue(0, 1, {{ ages.total_population_asian_2000 }});
                 data.setValue(0, 2, {{ ages.total_population_asian_2010 }});
                 data.setValue(1, 0, 'Black');
                 data.setValue(1, 1, {{ ages.total_population_black_2000 }});
                 data.setValue(1, 2, {{ ages.total_population_black_2010 }});
                 data.setValue(2, 0, 'Latino');
                 data.setValue(2, 1, {{ ages.total_population_latino_2000 }});
-                data.setValue(2, 2, {{ ages.total_population_Latino_2010 }});
+                data.setValue(2, 2, {{ ages.total_population_latino_2010 }});
                 data.setValue(3, 0, 'White');
                 data.setValue(3, 1, {{ ages.total_population_white_2000 }});
                 data.setValue(3, 2, {{ ages.total_population_white_2010 }});
@@ -134,7 +134,7 @@
                             {{ ages.total_latino_under_5_2010|intcomma }}
                         </td>
                         <td class="percentage">
-                            TODO: reload data to fix naming{{ ages.percent_latino_under_5_2010|percentage }} X
+                            {{ ages.percent_latino_under_5_2010|percentage }}
                         </td>
                         <td class="number">
                               {{ ages.total_white_under_5_2010|intcomma }}
@@ -169,7 +169,7 @@
                             {{ ages.total_latino_under_18_2010|intcomma }}
                         </td>
                         <td class="percentage">
-                            TODO: reload data to fix naming{{ ages.percent_latino_under_18_2010|percentage }} X
+                            {{ ages.percent_latino_under_18_2010|percentage }}
                         </td>
                         <td class="number">
                               {{ ages.total_white_under_18_2010|intcomma }}
@@ -180,8 +180,6 @@
 
                     </tr>
                     <tr>
-
-
                               <td class="item-name">
                                   65 Plus
                               </td>
@@ -208,31 +206,17 @@
                                   {{ ages.total_latino_65_and_over_2010|intcomma }}
                               </td>
                               <td class="percentage">
-                                  TODO: reload data to fix naming{{ ages.percent_latino_65_plus_2010|percentage }} X
+                                  {{ ages.percent_latino_65_plus_2010|percentage }}
                               </td>
                               <td class="number">
-                                    {{ ages.total_white_65_and_over_2010|intcomma }}
-                                </td>
-                                <td class="percentage">
-                                    TODO: RELOAD TO FIX THIS{{ ages.percent_white_under_18_2010|percentage }} X
-                                </td>
-
+                                  {{ ages.total_white_65_and_over_2010|intcomma }}
+                              </td>
+                              <td class="percentage">
+                                  {{ ages.precent_white_65_plus_2010|percentage }}
+                              </td>
                           </tr>
                 </tbody>
                 <tfoot>
-                <!--
-                <tr>
-                    <th>Total</th>
-
-                    <th>1,567,582</th>
-                    <th>100%</th>
-                    <th>785,324</th>
-                    <th>100%</th>
-                    <th>782,258</th>
-                    <th>100%</th>
-
-                </tr>
-                -->
                 </tfoot>
             </table>
         </div>

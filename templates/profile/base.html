@@ -7,7 +7,6 @@
     <script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery-1.6.min.js"></script> 
     <script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery-ui.min.js"></script>
     <script type="text/javascript" src="http://extras.denverpost.com/media/js/jquery/jquery.tablesorter.min.js"></script>
-    <script type="text/javascript" src="{{ MEDIA_URL }}/js/raphael.js"></script>
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/census.css" media="all" />
     <link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/details.css">
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -15,7 +14,7 @@
         google.load("visualization", "1", {packages:["corechart"]});
         //google.setOnLoadCallback(drawChart);
     $(document).ready(function() {
-        //When page loads...
+        $("#census-table").tablesorter();
         $(".tab_content").hide(); //Hide all content
         $("ul.tabs li:first").addClass("active").show(); //Activate first tab
         $(".tab_content:first").show(); //Show first tab content

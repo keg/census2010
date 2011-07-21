@@ -26,7 +26,7 @@ for i, row in enumerate(file_reader):
             value = value.strip('%,')
             if value == '#DIV/0!':
                 value = 0
-            elif value != '':
+            elif value != '' and value != ' ':
                 try: 
                     value = int(value)
                 except ValueError:
